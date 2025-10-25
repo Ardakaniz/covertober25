@@ -100,35 +100,43 @@
 		"has_start": true
 	},
 	{
-		"base_frame": 50,
-		"cm": "Purples",
-		"force_cycle": false
+		"base_frame": 39,
+		"cm": "twilight_shifted",
+		"force_cycle": true,
+		"pixelated": false,
+		"no_audio": true
+	},
+	{
+		"base_frame": 15,
+		"cm": "hot",
+		"force_cycle": true,
+		"pixelated": true
 	},
 	{
 		"base_frame": 50,
-		"cm": "Purples",
-		"force_cycle": false
+		"cm": "YlGnBu",
+		"force_cycle": false,
+		"pixelated": true
 	},
 	{
-		"base_frame": 50,
-		"cm": "Purples",
-		"force_cycle": false
+		"base_frame": 41,
+		"cm": "Dark2",
+		"force_cycle": false,
+		"pixelated": true,
+		"no_audio": true
 	},
 	{
-		"base_frame": 50,
-		"cm": "Purples",
-		"force_cycle": false
-	},
-	{
-		"base_frame": 50,
-		"cm": "copper",
-		"force_cycle": true
+		"base_frame": 42,
+		"cm": "twilight_shifted",
+		"force_cycle": false,
+		"pixelated": true
 	},
 	{
 		"base_frame": 43,
 		"cm": "Pastel2",
 		"force_cycle": false,
-		"pixelated": true
+		"pixelated": true,
+		"no_audio": true
 	},
 	{
 		"base_frame": 50,
