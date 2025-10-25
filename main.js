@@ -1,5 +1,5 @@
 const width = 128, height = 128, sample_count = 66; // match Python
-const CURRENT_JOUR = 17;
+const CURRENT_JOUR = 23;
 const MAX_SIMULTANEOUS_SAMPLE = 8;
 const JOUR_LABELS = [
 	"digital playground",
@@ -27,7 +27,7 @@ const JOUR_LABELS = [
 	"dress to depress",
 	"today is for me",
 	"Chii elixir",
-	"threesix gambling sq",
+	"threesix ga	mbling sq",
 	"RERERE",
 	"где Надежда",
 	"DSM said ; ASD cues",
@@ -36,7 +36,7 @@ const JOUR_LABELS = [
 ]
 let ANIM_FPS = 15;
 
-let colormaps = ["YlGnBu","RdPu","Pastel2","hot","Spectral","magma","twilight_shifted","hsv","Purples","Purples_r","Greens","Blues","Blues_r","Greys","cividis","copper","viridis","winter","summer"];
+let colormaps = ["Dark2","YlGnBu","RdPu","Pastel2","hot","Spectral","magma","twilight_shifted","hsv","Purples","Purples_r","Greens","Blues","Blues_r","Greys","cividis","copper","viridis","winter","summer"];
 let jour_configs;
 let jours = [];
 let anim_frame = 0;
@@ -81,6 +81,57 @@ function setup_dom() {
 				if ("pixelated" in jour_configs[i] && jour_configs[i]["pixelated"])
 					document.getElementById(`J${i}`).classList.add("pixelated");
 			}
+		})
+		.then(setup)
+		.then(_ => {
+			const play_el = document.getElementById("play");
+			play_el.innerText = "play";
+			play_el.classList.remove("disabled");
+			animate();
+
+			const play_cb = () => {
+				jours[0].audio[0].play();
+
+				started = true;
+
+				if ("mediaSession" in navigator) 
+					navigator.mediaSession.playbackState = "playing";
+
+				for (let i = 1; i < CURRENT_JOUR + 1; i++) {
+					document.getElementById(`J${i}`).classList.add("activable");
+				}
+
+				play_el.removeEventListener("click", play_cb)
+			}
+			play_el.addEventListener("click", play_cb);
+
+			if ("mediaSession" in navigator) {
+				navigator.mediaSession.metadata = new MediaMetadata({
+					title: " - ",
+					artist: "Irrational",
+					album: "Coverartober 2025",
+					artwork: [{"src": "appIcon.png", sizes: "128x128", type:"images/png"}]
+				});
+
+				navigator.mediaSession.setActionHandler("play", () => {
+					navigator.mediaSession.playbackState = "playing";
+
+					jours[0].audio[0].play();
+					playing_idxs.forEach(x => {
+						jours[0].audio[x].play();
+						jours[x].audio.play();
+					});
+				});
+				navigator.mediaSession.setActionHandler("pause", () => {
+					navigator.mediaSession.playbackState = "paused";
+
+					jours[0].audio[0].pause();
+					playing_idxs.forEach(x => {
+						jours[0].audio[x].pause();
+						jours[x].audio.pause();
+					});
+				});
+			}
 		});
 }
 
@@ -91,9 +142,12 @@ async function setup_jour(jour_idx) {
 	cnv.width = width;
 	cnv.height = height;
 
-	let audio = new Audio(`samples/${jour_name}.mp3`);
-	audio.loop = true;
-	audio.volume = 0;
+	let audio = null;
+	if (!("no_audio" in jour_configs[jour_idx]) || !jour_configs[jour_idx]["no_audio"]) {
+		audio = new Audio(`samples/${jour_name}.mp3`);
+		audio.loop = true;
+		audio.volume = 0;
+	}
 
 	let audio_start = null;
 	if ("has_start" in jour_configs[jour_idx] && jour_configs[jour_idx]["has_start"]) {
@@ -164,8 +218,12 @@ async function setup_jour(jour_idx) {
 					if (playing_idxs.length === 0)
 						anim_frame = 0;
 
-					if (playing_idxs.length === MAX_SIMULTANEOUS_SAMPLE)
-						jours[playing_idxs.splice(0, 1)[0]].target_volume = 0;
+					const playing_idxs_with_audio = playing_idxs.filter(i => jours[i].audio !== null);
+					if (playing_idxs_with_audio.length === MAX_SIMULTANEOUS_SAMPLE) {
+						const removed = playing_idxs_with_audio[0];
+						jours[removed].target_volume = 0;
+						playing_idxs.splice(playing_idxs.indexOf(removed), 1);
+					}
 
 					playing_idxs.push(jour_idx);
 
@@ -173,7 +231,7 @@ async function setup_jour(jour_idx) {
 					jours[0].audio[jour_idx].play();
 
 					if (audio_start !== null) audio_start.play();
-					else {
+					else if (audio !== null) {
 						audio.play();
 						jours[jour_idx].target_volume = 1;
 					}
@@ -274,56 +332,7 @@ async function setup() {
 	}
 	//// END SETUP rest ////
 
-	Promise.all([J0_promise, ...Jrest_promises]).then(_ => {
-		const play_el = document.getElementById("play");
-		play_el.innerText = "play";
-		play_el.classList.remove("disabled");
-		animate();
-
-		const play_cb = () => {
-			jours[0].audio[0].play();
-
-			started = true;
-
-			if ("mediaSession" in navigator) 
-				navigator.mediaSession.playbackState = "playing";
-
-			for (let i = 1; i < CURRENT_JOUR + 1; i++) {
-				document.getElementById(`J${i}`).classList.add("activable");
-			}
-
-			play_el.removeEventListener("click", play_cb)
-		}
-		play_el.addEventListener("click", play_cb);
-
-		if ("mediaSession" in navigator) {
-			navigator.mediaSession.metadata = new MediaMetadata({
-				title: " - ",
-				artist: "Irrational",
-				album: "Coverartober 2025",
-				artwork: [{"src": "appIcon.png", sizes: "128x128", type:"images/png"}]
-			});
-
-			navigator.mediaSession.setActionHandler("play", () => {
-				navigator.mediaSession.playbackState = "playing";
-
-				jours[0].audio[0].play();
-				playing_idxs.forEach(x => {
-					jours[0].audio[x].play();
-					jours[x].audio.play();
-				});
-			});
-			navigator.mediaSession.setActionHandler("pause", () => {
-				navigator.mediaSession.playbackState = "paused";
-
-				jours[0].audio[0].pause();
-				playing_idxs.forEach(x => {
-					jours[0].audio[x].pause();
-					jours[x].audio.pause();
-				});
-			});
-		}
-	});
+	await Promise.all([J0_promise, ...Jrest_promises]);
 }
 
 function cache_image_data(jour_idx) {
@@ -377,22 +386,26 @@ function animate() {
 	
 	//// AUDIO FADING ////
 	for (let i = 0; i < CURRENT_JOUR + 1; i++) {
+		const j_audio = jours[i].audio;
+
+		if (j_audio === null)
+			continue;
+
 		const tar_vol = jours[i].target_volume;
 		const cur_vol = i == 0 ? jours[i].audio[0].volume : jours[i].audio.volume;
 
 		const delta_vol = (tar_vol - cur_vol) * 0.05 * 15/ANIM_FPS;
 
-		if (i == 0) jours[i].audio.forEach(audio => audio.volume += delta_vol);
-		else jours[i].audio.volume += delta_vol;
+		if (i == 0) j_audio.forEach(audio => audio.volume += delta_vol);
+		else j_audio.volume += delta_vol;
 
 		if (i != 0 && tar_vol == 0 && cur_vol < 0.1)
-			jours[i].audio.pause();
+			j_audio.pause();
 	}
 	//// ////
 
-	anim_frame = (anim_frame + 1) % (2*sample_count - 1);
+	anim_frame = (anim_frame + 1) % (2*sample_count - 2);
 	setTimeout(() => animate(), 1/ANIM_FPS*1000);
 }
 
 setup_dom();
-setup();
