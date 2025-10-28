@@ -163,7 +163,7 @@
 		"no_audio": true
 	},
 	{
-		"base_frame": 2,
+		"base_frame": 8,
 		"cm": "Purples",
 		"force_cycle": false,
 		"pixelated": true,
