@@ -1,5 +1,5 @@
 const width = 128, height = 128, sample_count = 66; // match Python
-const CURRENT_JOUR = 23;
+const CURRENT_JOUR = 27;
 const MAX_SIMULTANEOUS_SAMPLE = 8;
 const JOUR_LABELS = [
 	"digital playground",
@@ -27,7 +27,7 @@ const JOUR_LABELS = [
 	"dress to depress",
 	"today is for me",
 	"Chii elixir",
-	"threesix ga	mbling sq",
+	"threesix gambling sq",
 	"RERERE",
 	"где Надежда",
 	"DSM said ; ASD cues",
@@ -186,23 +186,30 @@ async function setup_jour(jour_idx) {
 			const data = new Uint8Array(buffer);
 			let idx = 0;
 			let px_data = jours[jour_idx].px_data;
+			const single_img = "single_img" in jour_configs[jour_idx]; 
 
 			for(let x = 0; x < width; x++) {
 				px_data.push([]);
 				for(let y = 0; y < height; y++) {
 					px_data[x].push([]);
 					for(let f = 0; f < sample_count; f++) {
-						const px = data[idx++];
-						if (!jour_configs[jour_idx].force_cycle) {
-							px_data[x][y].push(px);
+						let px = data[idx];
+
+						if (!single_img) idx++;
+
+						if (jour_configs[jour_idx].force_cycle) {
+							if (px >= 128) {
+								px = 2*(256 - px)-1;
+							}
+							else {
+								px = 2*px;
+							}
 						}
-						else if (px >= 128) {
-							px_data[x][y].push(2*(256 - px)-1);
-						}
-						else {
-							px_data[x][y].push(2*px);
-						}
+
+						px_data[x][y].push(px);
 					}
+
+					if (single_img) idx++;
 				}
 			}
 
@@ -274,7 +281,7 @@ async function setup_jour(jour_idx) {
 			cnv.addEventListener("click", click_cb);
 			play_btn.addEventListener("click", click_cb);
 		})
-		.catch(() => {});
+		.catch(e => {});
 }
 
 async function setup() {

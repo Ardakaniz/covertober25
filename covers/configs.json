@@ -140,23 +140,34 @@
 	},
 	{
 		"base_frame": 50,
-		"cm": "Purples",
-		"force_cycle": false
+		"cm": "Blues_r",
+		"force_cycle": true,
+		"pixelated": true,
+		"single_img": true,
+		"no_audio": true
 	},
 	{
 		"base_frame": 50,
 		"cm": "Purples",
-		"force_cycle": false
+		"force_cycle": false,
+		"pixelated": true,
+		"single_img": true,
+		"no_audio": true
 	},
 	{
 		"base_frame": 50,
-		"cm": "Purples",
-		"force_cycle": false
+		"cm": "hsv",
+		"force_cycle": false,
+		"pixelated": true,
+		"single_img": true,
+		"no_audio": true
 	},
 	{
-		"base_frame": 50,
+		"base_frame": 2,
 		"cm": "Purples",
-		"force_cycle": false
+		"force_cycle": false,
+		"pixelated": true,
+		"no_audio": true
 	},
 	{
 		"base_frame": 50,
